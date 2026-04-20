@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aster's To-Do List</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #34495e;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(to right, #2980b9, #3498db);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header .name {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        /* Progress Bar */
+        .progress-section {
+            background: rgba(0,0,0,0.2);
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #27ae60;
+            width: 29%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        /* Grid Layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 20px;
+        }
+
+        /* Left Panel */
+        .left-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .left-panel h3 {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #7f8c8d;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+        }
+
+        .filter-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 8px;
+            border: 2px solid #ecf0f1;
+            background: white;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            border-color: #3498db;
+        }
+
+        .filter-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        /* Right Panel */
+        .right-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        /* Search & Add */
+        .top-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-box input, .add-task input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .search-box input:focus, .add-task input:focus {
+            border-color: #3498db;
+        }
+
+        .add-task {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 8px;
+        }
+
+        .add-task select {
+            padding: 10px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 12px;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* Task Grid */
+        .task-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .task-card {
+            background: #f8f9fa;
+            border: 2px solid #ecf0f1;
+            border-radius: 12px;
+            padding: 15px;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .task-card:hover {
+            border-color: #3498db;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        .page-btn {
+            padding: 8px 14px;
+            border: 2px solid #ecf0f1;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .page-btn:hover {
+            border-color: #3498db;
+        }
+
+        .page-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+
+        .task-card.completed {
+            opacity: 0.6;
+            background: #e8e8e8;
+        }
+
+        .task-card.completed .task-title {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .task-card input[type="checkbox"] {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #3498db;
+        }
+
+        .task-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            padding-right: 25px;
+        }
+
+        .task-meta {
+            font-size: 11px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        .task-meta span {
+            margin-right: 10px;
+        }
+
+        .task-notes {
+            font-size: 11px;
+            color: #95a5a6;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .task-badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .badge.urgent { background: #e74c3c; color: white; }
+        .badge.high { background: #e67e22; color: white; }
+        .badge.normal { background: #27ae60; color: white; }
+        .badge.low { background: #3498db; color: white; }
+        .badge.school { background: #9b59b6; color: white; }
+        .badge.work { background: #34495e; color: white; }
+        .badge.personal { background: #16a085; color: white; }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 15px;
+            color: white;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            .top-row {
+                grid-template-columns: 1fr;
+            }
+            .task-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <div class="header">
+            <h1>📋 My To-Do List</h1>
+            <span class="name">by Aster</span>
+            <div class="progress-section">
+                <div class="progress-label">
+                    <span>Overall Progress</span>
+                    <span id="progress-text">0/0 tasks (0%)</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Left Panel -->
+            <div class="left-panel">
+                <h3>📊 Statistics</h3>
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="stat-total">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="stat-active">0</div>
+                        <div class="stat-label">Active</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="stat-done">0</div>
+                        <div class="stat-label">Done</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="stat-urgent">0</div>
+                        <div class="stat-label">Urgent</div>
+                    </div>
+                </div>
+
+                <h3>🔍 Filter</h3>
+                <button class="filter-btn active" onclick="filterTasks('all', this)">📌 All</button>
+                <button class="filter-btn" onclick="filterTasks('active', this)">⏳ Active</button>
+                <button class="filter-btn" onclick="filterTasks('done', this)">✅ Done</button>
+                <button class="filter-btn" onclick="filterTasks('urgent', this)">🔴 Urgent</button>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="right-panel">
+                <!-- Search & Add Row -->
+                <div class="top-row">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="🔍 Search..." onkeyup="searchTasks()">
+                    </div>
+                    <div class="add-task">
+                        <input type="text" id="newTaskInput" placeholder="New task..." required>
+                        <select id="newPriority">
+                            <option value="urgent">🔴 Urgent</option>
+                            <option value="high">🟠 High</option>
+                            <option value="normal" selected>🟢 Normal</option>
+                            <option value="low">🔵 Low</option>
+                        </select>
+                        <select id="newCategory">
+                            <option value="school">📚 School</option>
+                            <option value="work">💼 Work</option>
+                            <option value="personal">🏠 Personal</option>
+                        </select>
+                        <button onclick="addNewTask()" style="padding: 10px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Add</button>
+                    </div>
+                </div>
+
+                <!-- Task Grid -->
+                <div class="task-grid" id="taskList">
+                    <div class="task-card" data-priority="urgent" data-category="school">
+                        <input type="checkbox" id="t1" onchange="toggleTask(this)">
+                        <div class="task-title">Complete HTML Assignment</div>
+                        <div class="task-meta">
+                            <span>📅 Apr 22</span>
+                            <span>📚 School</span>
+                        </div>
+                        <div class="task-notes">Finish form chapter</div>
+                        <div class="task-badges">
+                            <span class="badge urgent">Urgent</span>
+                            <span class="badge school">School</span>
+                        </div>
+                    </div>
+
+                    <div class="task-card" data-priority="high" data-category="school">
+                        <input type="checkbox" id="t2" onchange="toggleTask(this)">
+                        <div class="task-title">Review Lecture Notes</div>
+                        <div class="task-meta">
+                            <span>📅 Apr 25</span>
+                            <span>📚 School</span>
+                        </div>
+                        <div class="task-badges">
+                            <span class="badge high">High</span>
+                            <span class="badge school">School</span>
+                        </div>
+                    </div>
+
+                    <div class="task-card completed" data-priority="normal" data-category="personal">
+                        <input type="checkbox" id="t3" checked onchange="toggleTask(this)">
+                        <div class="task-title">Install Code Editor</div>
+                        <div class="task-meta">
+                            <span>📅 Apr 18</span>
+                            <span>🏠 Personal</span>
+                        </div>
+                        <div class="task-badges">
+                            <span class="badge normal">Normal</span>
+                            <span class="badge personal">Personal</span>
+                        </div>
+                    </div>
+
+                    <div class="task-card" data-priority="high" data-category="school">
+                        <input type="checkbox" id="t4" onchange="toggleTask(this)">
+                        <div class="task-title">Practice CSS Flexbox</div>
+                        <div class="task-meta">
+                            <span>📅 Apr 28</span>
+                            <span>📚 School</span>
+                        </div>
+                        <div class="task-notes">Ch 6-7</div>
+                        <div class="task-badges">
+                            <span class="badge high">High</span>
+                            <span class="badge school">School</span>
+                        </div>
+                    </div>
+
+                    <div class="task-card" data-priority="urgent" data-category="work">
+                        <input type="checkbox" id="t5" onchange="toggleTask(this)">
+                        <div class="task-title">Build Portfolio Website</div>
+                        <div class="task-meta">
+                            <span>📅 May 1</span>
+                            <span>💼 Work</span>
+                        </div>
+                        <div class="task-badges">
+                            <span class="badge urgent">Urgent</span>
+                            <span class="badge work">Work</span>
+                        </div>
+                    </div>
+
+                    <div class="task-card completed" data-priority="low" data-category="personal">
+                        <input type="checkbox" id="t6" checked onchange="toggleTask(this)">
+                        <div class="task-title">Read Documentation</div>
+                        <div class="task-meta">
+                            <span>📅 Apr 15</span>
+                            <span>🏠 Personal</span>
+                        </div>
+                        <div class="task-badges">
+                            <span class="badge low">Low</span>
+                            <span class="badge personal">Personal</span>
+                        </div>
+                    </div>
+
+                    <div class="task-card" data-priority="normal" data-category="school">
+                        <input type="checkbox" id="t7" onchange="toggleTask(this)">
+                        <div class="task-title">Watch Video Tutorials</div>
+                        <div class="task-meta">
+                            <span>📅 Apr 30</span>
+                            <span>📚 School</span>
+                        </div>
+                        <div class="task-badges">
+                            <span class="badge normal">Normal</span>
+                            <span class="badge school">School</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <button class="page-btn" onclick="changePage(-1)" id="prevBtn">← Prev</button>
+                    <span class="page-info">Page <span id="currentPage">1</span> of <span id="totalPages">2</span></span>
+                    <button class="page-btn" onclick="changePage(1)" id="nextBtn">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            © 2026 Aster's To-Do List | Built with HTML, CSS & JavaScript 🚀
+        </div>
+    </div>
+
+    <script>
+        // Filter Tasks
+        function filterTasks(type, btn) {
+            const items = document.querySelectorAll('.task-card');
+            const buttons = document.querySelectorAll('.filter-btn');
+
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            items.forEach(item => {
+                const isCompleted = item.classList.contains('completed');
+                const priority = item.dataset.priority;
+
+                let show = true;
+                if (type === 'active') show = !isCompleted;
+                else if (type === 'done') show = isCompleted;
+                else if (type === 'urgent') show = priority === 'urgent';
+
+                item.style.display = show ? 'block' : 'none';
+            });
+        }
+
+        // Search Tasks
+        function searchTasks() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const items = document.querySelectorAll('.task-card');
+
+            items.forEach(item => {
+                const text = item.querySelector('.task-title').textContent.toLowerCase();
+                item.style.display = text.includes(query) ? 'block' : 'none';
+            });
+        }
+
+        // Add New Task
+        function addNewTask() {
+            const input = document.getElementById('newTaskInput');
+            const priority = document.getElementById('newPriority').value;
+            const category = document.getElementById('newCategory').value;
+
+            if (!input.value.trim()) return;
+
+            const taskList = document.getElementById('taskList');
+            const taskId = 't' + (Date.now());
+
+            const categoryEmoji = {
+                'school': '📚 School',
+                'work': '💼 Work',
+                'personal': '🏠 Personal'
+            };
+
+            const newCard = document.createElement('div');
+            newCard.className = 'task-card';
+            newCard.dataset.priority = priority;
+            newCard.dataset.category = category;
+            newCard.innerHTML = `
+                <input type="checkbox" id="${taskId}" onchange="toggleTask(this)">
+                <div class="task-title">${input.value}</div>
+                <div class="task-meta">
+                    <span>📅 Today</span>
+                    <span>${categoryEmoji[category]}</span>
+                </div>
+                <div class="task-badges">
+                    <span class="badge ${priority}">${priority.charAt(0).toUpperCase() + priority.slice(1)}</span>
+                    <span class="badge ${category}">${category.charAt(0).toUpperCase() + category.slice(1)}</span>
+                </div>
+            `;
+
+            taskList.appendChild(newCard);
+            input.value = '';
+        }
+
+        // Toggle Task Complete
+        function toggleTask(checkbox) {
+            const card = checkbox.closest('.task-card');
+            if (checkbox.checked) {
+                card.classList.add('completed');
+            } else {
+                card.classList.remove('completed');
+            }
+            updateStats();
+        }
+
+        // Update Statistics
+        function updateStats() {
+            const items = document.querySelectorAll('.task-card');
+            const total = items.length;
+            const completed = document.querySelectorAll('.task-card.completed').length;
+            const active = total - completed;
+            const urgent = document.querySelectorAll('.task-card[data-priority="urgent"]').length;
+            const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-active').textContent = active;
+            document.getElementById('stat-done').textContent = completed;
+            document.getElementById('stat-urgent').textContent = urgent;
+            document.getElementById('progress-text').textContent = `${completed}/${total} tasks (${percent}%)`;
+            document.getElementById('progress-fill').style.width = percent + '%';
+        }
+
+        // Pagination
+        let currentPage = 1;
+        const tasksPerPage = 4;
+
+        function updatePagination() {
+            const items = document.querySelectorAll('.task-card');
+            const totalPages = Math.ceil(items.length / tasksPerPage);
+
+            items.forEach((item, index) => {
+                const pageNum = Math.floor(index / tasksPerPage) + 1;
+                item.style.display = pageNum === currentPage ? 'block' : 'none';
+            });
+
+            document.getElementById('currentPage').textContent = currentPage;
+            document.getElementById('totalPages').textContent = totalPages;
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+        }
+
+        function changePage(direction) {
+            const items = document.querySelectorAll('.task-card');
+            const totalPages = Math.ceil(items.length / tasksPerPage);
+
+            currentPage += direction;
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            updatePagination();
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePagination();
+            updateStats();
+        });
+
+        // Update after adding new task
+        const originalAddTask = addNewTask;
+        addNewTask = function() {
+            originalAddTask();
+            updatePagination();
+            updateStats();
+        }
+    </script>
+</body>
+</html>
